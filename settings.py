@@ -1,4 +1,4 @@
-# Database
+# PostgreSQL
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -10,7 +10,7 @@ DATABASES = {
     }
 }
 
-# Cache
+# Redis
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",

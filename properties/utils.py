@@ -4,18 +4,29 @@ import logging
 logger = logging.getLogger(__name__)
 
 def get_redis_cache_metrics():
-    conn = get_redis_connection("default")
-    info = conn.info()
+    try:
+        conn = get_redis_connection("default")
+        info = conn.info()
 
-    hits = info.get("keyspace_hits", 0)
-    misses = info.get("keyspace_misses", 0)
-    ratio = hits / (hits + misses) if (hits + misses) > 0 else 0
+        hits = info.get("keyspace_hits", 0)
+        misses = info.get("keyspace_misses", 0)
+        total_requests = hits + misses
 
-    metrics = {
-        "hits": hits,
-        "misses": misses,
-        "hit_ratio": round(ratio, 2)
-    }
+        hit_ratio = hits / total_requests if total_requests > 0 else 0
 
-    logger.info(f"Cache metrics: {metrics}")
-    return metrics
+        metrics = {
+            "hits": hits,
+            "misses": misses,
+            "hit_ratio": round(hit_ratio, 2)
+        }
+
+        logger.info(f"Cache Metrics: {metrics}")
+        return metrics
+
+    except Exception as e:
+        logger.error(f"Failed to fetch Redis metrics: {str(e)}")
+        return {
+            "hits": 0,
+            "misses": 0,
+            "hit_ratio": 0
+        }
