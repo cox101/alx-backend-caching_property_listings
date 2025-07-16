@@ -1,4 +1,6 @@
 from django_redis import get_redis_connection
+from django.core.cache import cache
+from .models import Property
 import logging
 
 logger = logging.getLogger(__name__)
@@ -30,3 +32,14 @@ def get_redis_cache_metrics():
             "misses": 0,
             "hit_ratio": 0
         }
+
+
+def get_all_properties():
+    """
+    Retrieve all Property objects from cache or database.
+    """
+    properties = cache.get("all_properties")
+    if not properties:
+        properties = Property.objects.all()
+        cache.set("all_properties", properties, 3600)  # cache for 1 hour
+    return properties
